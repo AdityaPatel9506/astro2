@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<<<<<<< HEAD
+    <title>Blog Display Page</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 800px;
+            margin: auto;
+            background: #fff;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .create-button {
+            text-align: right;
+            margin-bottom: 20px;
+        }
+        .create-button button {
+            padding: 10px 20px;
+            border: none;
+            cursor: pointer;
+            color: #fff;
+            background-color: #28a745;
+            border-radius: 5px;
+        }
+        .create-button button:hover {
+            opacity: 0.9;
+        }
+        .blog-post {
+            margin-bottom: 20px;
+            padding: 15px;
+            border-bottom: 1px solid #ddd;
+        }
+        .blog-post h2 {
+            margin-top: 0;
+            color: #333;
+        }
+        .blog-post p {
+            color: #555;
+        }
+        .button-group {
+            margin-top: 10px;
+        }
+        .button-group button {
+            padding: 10px 15px;
+            margin-right: 10px;
+            border: none;
+            cursor: pointer;
+            color: #fff;
+            background-color: #007BFF;
+            border-radius: 5px;
+        }
+        .button-group button.delete {
+            background-color: #DC3545;
+        }
+        .button-group button:hover {
+            opacity: 0.9;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="create-button">
+            <button>Create New Post</button>
+        </div>
+
+        <div class="blog-post">
+            <h2>Sample Blog Post 1</h2>
+            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla vitae metus a velit cursus convallis.</p>
+            <div class="button-group">
+                <button>Edit</button>
+                <button class="delete">Delete</button>
+            </div>
+        </div>
+
+        <div class="blog-post">
+            <h2>Sample Blog Post 2</h2>
+            <p>Quisque at libero ultricies, placerat lacus non, luctus turpis. Fusce vel ante sit amet mauris.</p>
+            <div class="button-group">
+                <button>Edit</button>
+                <button class="delete">Delete</button>
+            </div>
+        </div>
+    </div>
+
+=======
+    <title>Panchang Data</title>
+</head>
+<body>
+    <h1>Panchang Data</h1>
+    <form id="panchangForm">
+        <label for="date">Date:</label>
+        <input type="text" id="date" value="11/03/1994" required><br><br>
+        <label for="time">Time:</label>
+        <input type="text" id="time" value="05:20" required><br><br>
+        <label for="cityName">City:</label>
+        <input type="text" id="cityName" value="Delhi" required><br><br>
+        <button type="submit">Get Panchang</button>
+    </form>
+
+    <div id="result"></div>
+
+    <script>
+        document.getElementById('panchangForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            const date = document.getElementById('date').value;
+            const time = document.getElementById('time').value;
+            const cityName = document.getElementById('cityName').value;
+
+            const url = `https://astro-c3p2.onrender.com/panchang/panchang?date=${encodeURIComponent(date)}&time=${encodeURIComponent(time)}&cityName=${encodeURIComponent(cityName)}`;
+            console.log(url);
+            fetch(url)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                    
+                })
+                .then(data => {
+                    if (data.status === 200) {
+                        const response = data.response;
+                        let resultHtml = `
+                            <h2>Results for ${cityName} on ${date} at ${time}</h2>
+                            <p><strong>Day:</strong> ${response.day.name}</p>
+                            <p><strong>Tithi:</strong> ${response.tithi.name} (${response.tithi.meaning})</p>
+                            <p><strong>Nakshatra:</strong> ${response.nakshatra.name} (${response.nakshatra.meaning})</p>
+                            <p><strong>Karana:</strong> ${response.karana.name} (${response.karana.special})</p>
+                            <p><strong>Yoga:</strong> ${response.yoga.name} (${response.yoga.meaning})</p>
+                            <p><strong>Rasi:</strong> ${response.rasi.name}</p>
+                            <p><strong>Sunrise:</strong> ${response.advanced_details.sun_rise}</p>
+                            <p><strong>Sunset:</strong> ${response.advanced_details.sun_set}</p>
+                            <p><strong>Moonrise:</strong> ${response.advanced_details.moon_rise}</p>
+                            <p><strong>Moonset:</strong> ${response.advanced_details.moon_set}</p>
+                        `;
+                        document.getElementById('result').innerHTML = resultHtml;
+                    } else {
+                        document.getElementById('result').innerHTML = `<p>Error: Unable to fetch Panchang data.</p>`;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching Panchang data:', error);
+                    document.getElementById('result').innerHTML = `<p>Error: Unable to fetch Panchang data.</p>`;
+                });
+        });
+    </script>
+>>>>>>> a7e278bff9d85b8b148a101f697450c3dba3c295
+</body>
+</html>

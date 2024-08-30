@@ -1,0 +1,56 @@
+const axios = require('axios');
+const cheerio = require('cheerio');
+
+// Function to fetch and process monthly horoscope
+async function fetchMonthlyHoroscope(zodiacSign) {
+  try {
+    // Construct the URL based on zodiac sign
+    const url = `https://www.astrosage.com/horoscope/monthly-${zodiacSign}-horoscope.asp`;
+    
+    // Fetch the HTML content
+    const { data } = await axios.get(url);
+    
+    // Load the HTML into cheerio
+    const $ = cheerio.load(data);
+    
+    // Extract content with the class 'ui-sign-content-box'
+    const contentHtml = $('.ui-sign-content-box').html();
+    
+    // Load the content into a new Cheerio instance to manipulate it
+    const content = cheerio.load(contentHtml);
+
+    // Remove all <a> tags while keeping their content
+    content('a').each((index, element) => {
+      content(element).replaceWith(content(element).html());
+    });
+
+    // Get the processed HTML as a string
+    let processedHtml = content.html();
+
+    // Remove any remaining <head> and <body> tags if they exist
+    processedHtml = processedHtml.replace(/<\/?(head|body)[^>]*>/gi, '');
+
+    // Wrap the processed HTML inside a div with id 'monthly-horoscope'
+    const finalHtml = `<div id="monthly-horoscope">\n${processedHtml}\n</div>`;
+
+    // Return the processed HTML
+    return finalHtml;
+  } catch (error) {
+    console.error('Error fetching monthly horoscope:', error);
+    throw error; // Rethrow error to be handled by the caller
+  }
+}
+
+// Example usage with async/await
+async function displayHoroscope(zodiacSign) {
+  
+  try {
+    const html = await fetchMonthlyHoroscope(zodiacSign);
+    console.log(`Monthly Horoscope for ${zodiacSign}:`, html);
+  } catch (error) {
+    console.error('Failed to fetch horoscope:', error);
+  }
+}
+
+// Call the async function
+console.log(displayHoroscope('leo'));;

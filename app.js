@@ -8,7 +8,7 @@ const panchangRoutes = require('./routes/panchangRoutes');
 const matchingRoutes = require('./routes/kundaliRoutes');
 const authRoutes = require('./routes/authRoutes');
 const userRoutes = require('./routes/userRoutes');
-
+const horoscopeRoutes = require('./routes/horoscopeRoutes');
 const app = express();
 
 // Use CORS middleware
@@ -27,6 +27,8 @@ app.use('/panchang', panchangRoutes);
 app.use('/kundali', matchingRoutes);
 app.use('/auth', authRoutes);
 app.use('/user', userRoutes);
+app.use('/horoscope', horoscopeRoutes);
+
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {

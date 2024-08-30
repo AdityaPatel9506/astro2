@@ -14,29 +14,31 @@ const formatDate = (dateString) => {
 // Utility function to generate the birth chart
 const generateBirthChart = async (lat, lon, dob, tob, api_key) => {
   try {
+    console.log("birth controller called");
     const timezone = await getTimezoneFromCoords(lat, lon);
     const formattedDob = formatDate(dob);
 
     const params = {
-        dob: '11/03/1994', // Ensure correct date format
-        tob: '11:40',
-        lat: 22.71792, // Use precise latitude
-        lon: 75.8333, // Use precise longitude
-        tz: 5.5,
-        div: 'D1',
-        color: '%23ff3366',
-        style: 'north',
-        api_key: process.env.API_KEY, // Ensure to replace with actual API key
-        lang: 'en',
-        font_size: 12,
-        font_style: 'roboto',
-        colorful_planets: 0,
-        size: 300,
-        stroke: 2,
-        format: 'base64'
-      };
+      dob: formattedDob, // Use formatted date
+      tob: tob,
+      lat: lat,
+      lon: lon,
+      tz: timezone, // Use timezone obtained from coordinates
+      div: 'D1',
+      color: '%23ff3366',
+      style: 'north',
+      api_key: api_key,
+      lang: 'en',
+      font_size: 12,
+      font_style: 'roboto',
+      colorful_planets: 0,
+      size: 300,
+      stroke: 2,
+      format: 'base64'
+    };
+
     // Construct the final URL
-    const baseUrl = 'https://api.vedicastroapi.com/v3-json//horoscope/chart-image';
+    const baseUrl = 'https://api.vedicastroapi.com/v3-json/horoscope/chart-image';
     const url = `${baseUrl}?${new URLSearchParams(params).toString()}`;
 
     // Log the final URL for debugging
@@ -56,7 +58,7 @@ const generateBirthChart = async (lat, lon, dob, tob, api_key) => {
 // Create a new birth chart entry
 const createBirthChart = async (req, res) => {
   try {
-    const { dob, tob, placeOfBirth } = req.body;
+    const { dob, tob, placeOfBirth } = req.query; // Use req.query to get query parameters
 
     // Validate the input
     if (!dob || !tob || !placeOfBirth) {

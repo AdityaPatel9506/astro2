@@ -9,6 +9,7 @@ const matchingRoutes = require('./routes/kundaliRoutes');
 const authRoutes = require('./routes/authRoutes');
 const userRoutes = require('./routes/userRoutes');
 const horoscopeRoutes = require('./routes/horoscopeRoutes');
+const birthChartRoutes = require('./routes/birthChartRoutes');
 const app = express();
 
 // Use CORS middleware
@@ -28,6 +29,7 @@ app.use('/kundali', matchingRoutes);
 app.use('/auth', authRoutes);
 app.use('/user', userRoutes);
 app.use('/horoscope', horoscopeRoutes);
+app.use('/birthChart', birthChartRoutes);
 
 
 const PORT = process.env.PORT || 3000;

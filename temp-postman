@@ -14,14 +14,14 @@ const formatDate = (dateString) => {
 // Utility function to generate the birth chart
 const generateBirthChart = async (lat, lon, dob, tob, api_key) => {
   try {
-    console.log("Starting birth chart generation...");
-    console.log(`Parameters - Latitude: ${lat}, Longitude: ${lon}, DOB: ${dob}, TOB: ${tob}`);
+    console.log("Generating birth chart...");
+    console.log(`Coordinates: Latitude ${lat}, Longitude ${lon}`);
+    console.log(`Date of Birth: ${dob}`);
+    console.log(`Time of Birth: ${tob}`);
 
-    // Fetch the timezone based on coordinates
     const timezone = await getTimezoneFromCoords(lat, lon);
     console.log(`Timezone obtained: ${timezone}`);
-
-    // Format the date of birth
+    
     const formattedDob = formatDate(dob);
     console.log(`Formatted Date of Birth: ${formattedDob}`);
 
@@ -47,16 +47,15 @@ const generateBirthChart = async (lat, lon, dob, tob, api_key) => {
     // Construct the final URL
     const baseUrl = 'https://api.vedicastroapi.com/v3-json/horoscope/chart-image';
     const url = `${baseUrl}?${new URLSearchParams(params).toString()}`;
-    console.log('Constructed URL:', url);
+
+    // Log the final URL for debugging
+    console.log('Final Request URL:', url);
 
     // Make the API request
     const response = await axios.get(url);
     console.log('API response received successfully');
 
-    // Log response data for debugging
-    console.log('Response Data:', response.data);
-
-    // Return the response data (assumed to be XML)
+    // Return XML code
     return response.data;
   } catch (error) {
     console.error('Error generating birth chart:', error.message);
@@ -67,10 +66,10 @@ const generateBirthChart = async (lat, lon, dob, tob, api_key) => {
 // Controller function to create a new birth chart entry
 const createBirthChart = async (req, res) => {
   try {
-    console.log('Received request to create a birth chart entry...');
+    console.log('Creating a new birth chart entry...');
     
-    const { dob, tob, lat, lon } = req.query; // Use req.query for GET request
-    console.log(`Request parameters - dob: ${dob}, tob: ${tob}, lat: ${lat}, lon: ${lon}`);
+    const { dob, tob, lat, lon } = req.body; // Use req.body to get JSON payload
+    console.log(`Received payload - dob: ${dob}, tob: ${tob}, lat: ${lat}, lon: ${lon}`);
 
     // Validate the input
     if (!dob || !tob || !lat || !lon) {

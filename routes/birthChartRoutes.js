@@ -3,6 +3,6 @@ const router = express.Router();
 const birthChartController = require('../controllers/birthChartController');
 
 // Route to create and fetch birth chart
-router.post('/birthchart', birthChartController.createBirthChart);
+router.get('/birthchart', birthChartController.createBirthChart);
 
 module.exports = router;

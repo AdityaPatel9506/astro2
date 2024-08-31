@@ -15,9 +15,9 @@ async function fetchHoroscope(year, zodiacSign) {
     
     // Find all divs with class 'ui-content bg-light-gray'
     const divs = $('.ui-content.bg-light-gray');
-
-    // Remove the last <div> with the class 'card-view-content'
-    divs.find('div.card-view-content').last().remove();
+    
+    // Exclude the last div
+    divs.last().remove();
     
     // Initialize an array to store the processed HTML
     let processedHtml = '';

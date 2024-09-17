@@ -56,16 +56,16 @@ const getTimezoneFromCoords = (latitude, longitude) => {
 };
 
 // Function to check if a Panchang record exists in the database
-const checkPanchangExists = async (date, cityName) => {
-  const query = 'SELECT * FROM panchang_data WHERE date = ? AND city_name = ?';
-  const [rows] = await db.execute(query, [date, cityName]);
+const checkPanchangExists = async (date, cityName, language) => {
+  const query = 'SELECT * FROM panchang_data WHERE date = ? AND city_name = ? AND language = ?';
+  const [rows] = await db.execute(query, [date, cityName, language]);
   return rows.length > 0 ? rows[0] : null; // Return the existing record if found
 };
 
 // Function to insert Panchang data into the database
-const insertPanchangRecord = async (date, cityName, panchangData) => {
-  const query = 'INSERT INTO panchang_data (date, city_name, json_data) VALUES (?, ?, ?)';
-  await db.execute(query, [date, cityName, JSON.stringify(panchangData)]);
+const insertPanchangRecord = async (date, cityName, panchangData, language) => {
+  const query = 'INSERT INTO panchang_data (date, city_name, json_data, language) VALUES (?, ?, ?, ?)';
+  await db.execute(query, [date, cityName, JSON.stringify(panchangData), language]);
   console.log('Panchang data saved to the database');
 };
 
@@ -83,9 +83,9 @@ const getPanchangDetails = async (date, time, cityName, language) => {
     console.log(`Timezone Offset: ${timezoneOffset}`);
 
     // Check if Panchang record already exists in the database
-    const existingRecord = await checkPanchangExists(date, cityName);
+    const existingRecord = await checkPanchangExists(date, cityName, language);
     if (existingRecord) {
-      console.log(`Panchang record for ${cityName} on ${date} already exists in the database.`);
+      console.log(`Panchang record for ${cityName} on ${date} in language ${language} already exists in the database.`);
       return { 
         success: true, 
         data: JSON.parse(existingRecord.json_data) // Convert JSON text to JavaScript object
@@ -103,7 +103,8 @@ const getPanchangDetails = async (date, time, cityName, language) => {
         lang: language,
       },
     });
-console.log("response data is ", response);
+
+    console.log("Response data:", response.data);
 
     // Check if the API response status is 200
     if (response.data.status === 200) {
@@ -111,7 +112,7 @@ console.log("response data is ", response);
       console.log(panchangData);
 
       // Save Panchang data to the database
-      await insertPanchangRecord(date, cityName, panchangData);
+      await insertPanchangRecord(date, cityName, panchangData, language);
 
       return {
         success: true,
@@ -138,7 +139,6 @@ console.log("response data is ", response);
     };
   }
 };
-
 
 module.exports = {
   getCoordinates,

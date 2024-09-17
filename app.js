@@ -1,16 +1,20 @@
 const express = require('express');
 const path = require('path');
 const bodyParser = require('body-parser');
-const cors = require('cors'); // Import the CORS package
+const cors = require('cors');
 const cookieParser = require('cookie-parser');
+
 const blogRoutes = require('./routes/blogRoutes');
 const panchangRoutes = require('./routes/panchangRoutes');
-const matchingRoutes  = require('./routes/kundaliRoutes');
-const authRoutes = require('./routes/authRoutes')
-const userRoutes  = require('./routes/userRoutes')
+const matchingRoutes = require('./routes/kundaliRoutes');
+const authRoutes = require('./routes/authRoutes');
+const userRoutes = require('./routes/userRoutes');
 const horoscopeRoutes = require('./routes/horoscopeRoutes');
-const birthchart = require('./routes/birthChartRoutes')
+const birthchartRoutes = require('./routes/birthChartRoutes');
+const { sendEmail } = require('./controllers/emailController');
+
 const app = express();
+
 app.use(cookieParser());
 
 // Use CORS middleware
@@ -30,8 +34,10 @@ app.use('/kundali', matchingRoutes);
 app.use('/auth', authRoutes);
 app.use('/user', userRoutes);
 app.use('/horoscope', horoscopeRoutes);
+app.use('/birthChart', birthchartRoutes);
 
-app.use('/birthChart', birthchart);
+app.post('/send-email', sendEmail);
+
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);

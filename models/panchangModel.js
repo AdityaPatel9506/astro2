@@ -62,8 +62,13 @@ const getTimezoneFromCoords = (latitude, longitude) => {
   }
 };
 
+// Function to format date from yyyy-mm-dd to dd/mm/yyyy
+const formatDate = (date) => {
+  return moment(date).format('DD/MM/YYYY');
+};
+
 // Function to get Panchang details using the provided parameters
-const getPanchangDetails = async (date, time, cityName) => {
+const getPanchangDetails = async (date, time, cityName,language) => {
   console.log("Panchang data called");
   try {
     // Get the coordinates of the city
@@ -72,20 +77,24 @@ const getPanchangDetails = async (date, time, cityName) => {
 
     // Get the timezone offset based on coordinates
     const timezoneOffset = getTimezoneFromCoords(latitude, longitude);
-    
-    console.log(`Date: ${date}`);
-    console.log(`Time: ${time}`);
+
+    // Format date and time for the API
+    const formattedDate = formatDate(date); // Format date as dd/mm/yyyy
+    const formattedTime = moment(time, 'HH:mm').format('HH:mm'); // Ensure time is in HH:mm format
+
+    console.log(`Formatted Date: ${formattedDate}`);
+    console.log(`Time: ${formattedTime}`);
     console.log(`Timezone Offset: ${timezoneOffset}`);
-    
+
     // Call the Panchang API with the obtained coordinates and timezone offset
     const response = await axios.get('https://api.vedicastroapi.com/v3-json/panchang/panchang', {
       params: {
         api_key: process.env.API_KEY, // Replace with your actual API key
-        date: date,
-        lat:  28.7041,
-        lon: 77.1025,
+        date: formattedDate, // Use the formatted date
+        lat: latitude,
+        lon: longitude,
         tz: timezoneOffset, // Use the obtained timezone offset
-        lang: 'en',
+        lang: language,
       },
     });
 

@@ -12,7 +12,7 @@ const formatDate = (dateString) => {
 };
 
 // Utility function to generate the birth chart
-const generateBirthChart = async (lat, lon, dob, tob, api_key) => {
+const generateBirthChart = async (lat, lon, dob, tob, api_key, language) => {
   try {
     console.log("Starting birth chart generation...");
     console.log(`Parameters - Latitude: ${lat}, Longitude: ${lon}, DOB: ${dob}, TOB: ${tob}`);
@@ -35,7 +35,7 @@ const generateBirthChart = async (lat, lon, dob, tob, api_key) => {
       color: '%23ff3366',
       style: 'north',
       api_key: api_key,
-      lang: 'en',
+      lang: language, // Pass language parameter
       font_size: 12,
       font_style: 'roboto',
       colorful_planets: 0,
@@ -43,6 +43,7 @@ const generateBirthChart = async (lat, lon, dob, tob, api_key) => {
       stroke: 2,
       format: 'base64'
     };
+console.log(params);
 
     // Construct the final URL
     const baseUrl = 'https://api.vedicastroapi.com/v3-json/horoscope/chart-image';
@@ -54,7 +55,7 @@ const generateBirthChart = async (lat, lon, dob, tob, api_key) => {
     console.log('API response received successfully');
 
     // Log response data for debugging
-    console.log('Response Data:', response.data);
+    
 
     // Return the response data (assumed to be XML)
     return response.data;
@@ -69,13 +70,13 @@ const createBirthChart = async (req, res) => {
   try {
     console.log('Received request to create a birth chart entry...');
     
-    const { dob, tob, lat, lon } = req.query; // Use req.query for GET request
-    console.log(`Request parameters - dob: ${dob}, tob: ${tob}, lat: ${lat}, lon: ${lon}`);
+    const { dob, tob, lat, lon, language } = req.query; // Use req.query for GET request
+    console.log(`Request parameters - dob: ${dob}, tob: ${tob}, lat: ${lat}, lon: ${lon}, language: ${language}`);
 
     // Validate the input
-    if (!dob || !tob || !lat || !lon) {
+    if (!dob || !tob || !lat || !lon || !language) {
       console.error('Validation failed: Missing required fields');
-      return res.status(400).json({ error: 'Missing required fields: dob, tob, lat, or lon.' });
+      return res.status(400).json({ error: 'Missing required fields: dob, tob, lat, lon, or language.' });
     }
 
     // API key from environment variables
@@ -86,7 +87,7 @@ const createBirthChart = async (req, res) => {
     }
 
     // Generate the birth chart
-    const xmlResponse = await generateBirthChart(lat, lon, dob, tob, api_key);
+    const xmlResponse = await generateBirthChart(lat, lon, dob, tob, api_key, language);
     console.log('Birth chart generated successfully.');
 
     // Send XML response

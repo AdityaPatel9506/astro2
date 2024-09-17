@@ -1,6 +1,7 @@
 const { getCitiesByName } = require('../utils/cityUtils');
 
 const fetchCities = (req, res) => {
+  
     console.log("fetch city called");
   const cityName = req.query.cityName;
     console.log(cityName);

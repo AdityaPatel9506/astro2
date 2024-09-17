@@ -10,7 +10,7 @@ const getMatching = async (req, res) => {
       girl_dob: req.body.girl_dob || req.query.girl_dob,
       girl_tob: req.body.girl_tob || req.query.girl_tob,
       girl_pob: req.body.girl_pob || req.query.girl_pob,
-      lang: req.body.lang || req.query.lang,
+      lang: req.body.language || req.query.language,
       api_key: process.env.API_KEY // API key from environment variable
     };
 

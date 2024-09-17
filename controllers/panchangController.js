@@ -1,6 +1,4 @@
-// panchangController.js
 const panchangModel = require('../models/panchangModel');
-require('dotenv').config();
 
 const fetchPanchang = async (req, res) => {
   const date = req.query.date || req.body.date;
@@ -11,13 +9,21 @@ const fetchPanchang = async (req, res) => {
   console.log(`Date: ${date}, Time: ${time}, City: ${cityName}`);
 
   try {
-      const panchangData = await panchangModel.getPanchangDetails(date, time, cityName,language);
+    // Fetch Panchang data (either from DB or API)
+    const panchangData = await panchangModel.getPanchangDetails(date, time, cityName, language);
+
+    if (panchangData.success) {
       res.json(panchangData);
+    } else {
+      res.status(500).json({ error: panchangData.error });
+    }
   } catch (error) {
-      res.status(500).json({ error: error.message });
+    console.error('Error in fetchPanchang controller:', error.message);
+    res.status(500).json({ error: 'Internal server error' });
   }
 };
-  
-  module.exports = {
-    fetchPanchang,
-  };
+
+
+module.exports = {
+  fetchPanchang,
+};

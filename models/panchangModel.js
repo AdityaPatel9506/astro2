@@ -2,15 +2,14 @@ const axios = require('axios');
 const cities = require('all-the-cities');
 const geoTz = require('geo-tz');
 const moment = require('moment-timezone');
+const db = require('../config/db'); // Assuming this is your database connection
 
 // Function to get the latitude and longitude of a city using `all-the-cities`
 const getCoordinates = async (cityName) => {
   console.log("Location data called");
 
   try {
-    // Find the city in the `all-the-cities` data
     const city = cities.find(city => city.name.toLowerCase() === cityName.toLowerCase());
-
     if (city) {
       console.log("Location data fetched");
       const { coordinates } = city.loc;
@@ -27,7 +26,6 @@ const getCoordinates = async (cityName) => {
   }
 };
 
-// Function to convert timezone offset in `+HH:MM` format to decimal format
 const convertToDecimal = (offset) => {
   // offset is in the format of `+HH:MM`
   const [sign, time] = offset.split(/([+-])/).filter(Boolean);
@@ -39,17 +37,12 @@ const convertToDecimal = (offset) => {
 // Function to get the timezone based on latitude and longitude using `geo-tz`
 const getTimezoneFromCoords = (latitude, longitude) => {
   try {
-    // `geoTz.find` returns an array of timezones, so we take the first one
     const timezones = geoTz.find(latitude, longitude);
     if (timezones && timezones.length > 0) {
       const timezone = timezones[0];
       console.log(`Timezone: ${timezone}`);
-
-      // Get the numerical offset from the timezone name
       const offset = moment.tz(timezone).format('Z');
       console.log(`Offset: ${offset}`);
-
-      // Convert the timezone offset to decimal format
       const decimalOffset = convertToDecimal(offset);
       console.log(`Decimal Offset: ${decimalOffset}`);
       return decimalOffset;
@@ -62,56 +55,81 @@ const getTimezoneFromCoords = (latitude, longitude) => {
   }
 };
 
-// Function to format date from yyyy-mm-dd to dd/mm/yyyy
-const formatDate = (date) => {
-  return moment(date).format('DD/MM/YYYY');
+// Function to check if a Panchang record exists in the database
+const checkPanchangExists = async (date, cityName) => {
+  const query = 'SELECT * FROM panchang_data WHERE date = ? AND city_name = ?';
+  const [rows] = await db.execute(query, [date, cityName]);
+  return rows.length > 0 ? rows[0] : null; // Return the existing record if found
+};
+
+// Function to insert Panchang data into the database
+const insertPanchangRecord = async (date, cityName, panchangData) => {
+  const query = 'INSERT INTO panchang_data (date, city_name, json_data) VALUES (?, ?, ?)';
+  await db.execute(query, [date, cityName, JSON.stringify(panchangData)]);
+  console.log('Panchang data saved to the database');
 };
 
 // Function to get Panchang details using the provided parameters
-const getPanchangDetails = async (date, time, cityName,language) => {
+const getPanchangDetails = async (date, time, cityName, language) => {
   console.log("Panchang data called");
+
   try {
-    // Get the coordinates of the city
     const coordinates = await getCoordinates(cityName);
     const { latitude, longitude } = coordinates;
-
-    // Get the timezone offset based on coordinates
     const timezoneOffset = getTimezoneFromCoords(latitude, longitude);
 
-    // Format date and time for the API
-    const formattedDate = formatDate(date); // Format date as dd/mm/yyyy
-    const formattedTime = moment(time, 'HH:mm').format('HH:mm'); // Ensure time is in HH:mm format
-
-    console.log(`Formatted Date: ${formattedDate}`);
-    console.log(`Time: ${formattedTime}`);
+    console.log(`Date: ${date}`);
+    console.log(`Time: ${time}`);
     console.log(`Timezone Offset: ${timezoneOffset}`);
 
-    // Call the Panchang API with the obtained coordinates and timezone offset
+    // Check if Panchang record already exists in the database
+    const existingRecord = await checkPanchangExists(date, cityName);
+    if (existingRecord) {
+      console.log(`Panchang record for ${cityName} on ${date} already exists in the database.`);
+      return { 
+        success: true, 
+        data: JSON.parse(existingRecord.json_data) // Convert JSON text to JavaScript object
+      };
+    }
+
+    // Fetch Panchang data from the API if not found in the database
     const response = await axios.get('https://api.vedicastroapi.com/v3-json/panchang/panchang', {
       params: {
-        api_key: process.env.API_KEY, // Replace with your actual API key
-        date: formattedDate, // Use the formatted date
+        api_key: process.env.API_KEY,
+        date: date,  // No formatting needed
         lat: latitude,
         lon: longitude,
-        tz: timezoneOffset, // Use the obtained timezone offset
+        tz: timezoneOffset,
         lang: language,
       },
     });
+console.log("response data is ", response);
 
-    console.log(response.data);
-    return {
-      success: true,
-      data: response.data,
-    };
+    // Check if the API response status is 200
+    if (response.data.status === 200) {
+      const panchangData = response.data;
+      console.log(panchangData);
+
+      // Save Panchang data to the database
+      await insertPanchangRecord(date, cityName, panchangData);
+
+      return {
+        success: true,
+        data: panchangData,
+      };
+    } else {
+      throw new Error(`API responded with status code ${response.status}`);
+    }
   } catch (error) {
     console.error('Error fetching Panchang data:', error.message);
     let errorMessage = 'Error fetching Panchang data.';
 
-    // Handle specific errors and set the appropriate message
     if (error.message.includes('City not found')) {
       errorMessage = 'City not found. Please verify the city name.';
     } else if (error.message.includes('timezone')) {
       errorMessage = 'Error determining the timezone. Please check the coordinates.';
+    } else if (error.message.includes('API responded with status code')) {
+      errorMessage = 'Error fetching data from the API. Please try again later.';
     }
 
     return {
@@ -120,6 +138,7 @@ const getPanchangDetails = async (date, time, cityName,language) => {
     };
   }
 };
+
 
 module.exports = {
   getCoordinates,
